@@ -32,7 +32,7 @@ from sklearn.preprocessing import StandardScaler
 sns.set(style="whitegrid", context="talk")
 plt.rcParams['figure.figsize'] = (12,7)
 
-# ---------- CONFIG ----------
+
 TXN_CSV = Path('/Users/shashankshandilya/Desktop/amazon_decade_project/cleaned/transactions_cleaned.csv')
 PROD_CSV = Path('/Users/shashankshandilya/Desktop/amazon_decade_project/cleaned/products_cleaned.csv')
 OUT_IMG = Path('/Users/shashankshandilya/Desktop/amazon_decade_project/images')
@@ -58,7 +58,7 @@ def savefig(fig, fname, tight=True):
                 pio.write_html(fig, file=alt, auto_open=False)
     print("[SAVED]", path)
 
-# ---------- robust normalizers ----------
+
 def _clean_colname_raw(s):
     """Turn a column name into safe ascii lowercase with underscores."""
     if s is None:
@@ -121,7 +121,7 @@ def find_col(df, candidates):
 
     return None
 
-# ---------- load data ----------
+# Loading the Data
 print("Loading transactions:", TXN_CSV)
 df = pd.read_csv(TXN_CSV, low_memory=False)
 print("Loading products:", PROD_CSV)
@@ -159,7 +159,7 @@ df['order_year'] = df['order_date'].dt.year
 df['order_month'] = df['order_date'].dt.month
 df['order_ym'] = df['order_date'].dt.to_period('M').astype(str)
 
-# ---------- helpers ----------
+# Helpers
 def safe_merge_category(left_df, prod_df, prod_cat_col_candidates):
     """Return merged df and detected category column name canonicalized to 'category' (or None)."""
     cat_col = find_col(prod_df, prod_cat_col_candidates)
@@ -791,7 +791,7 @@ def q20():
     kpis.to_csv(OUT_SUM / 'Q20_kpis.csv', index=False)
     print("Q20 done")
 
-# ---------- Execute ----------
+# Execute
 if __name__ == '__main__':
     q1(); q2(); q3(k=4); q4(); q5(); q6(); q7(); q8(); q9(); q10()
     q11(); q12(); q13(); q14(); q15(); q16(); q17(); q18(); q19(); q20()
