@@ -549,7 +549,7 @@ elif section == "New Product Launch":
     st.header("New Product Launch Monitoring")
     st.info("Track new product revenue adoption vs baseline. Requires product launch date in products catalog and joins.")
 
-# ---------- Delivery Performance
+# Delivery Performance
 elif section == "Delivery Performance":
     st.header("Delivery Performance")
     if 'delivery_days' in df.columns:
@@ -560,7 +560,7 @@ elif section == "Delivery Performance":
     else:
         st.info("No delivery_days column.")
 
-# ---------- Payment Analytics ----------
+# Payment Analytics
 elif section == "Payment Analytics":
     st.header("Payment Methods")
     if 'payment_method' in df.columns:
@@ -570,7 +570,7 @@ elif section == "Payment Analytics":
     else:
         st.info("No payment_method column found.")
 
-# ---------- Returns & Cancellations ----------
+# Returns & Cancellations
 elif section == "Returns & Cancellations":
     st.header("Returns & Cancellations")
     if 'return_status' in df.columns:
@@ -579,37 +579,37 @@ elif section == "Returns & Cancellations":
     else:
         st.info("No return status column.")
 
-# ---------- Customer Service ----------
+# Customer Service
 elif section == "Customer Service":
     st.header("Customer Service")
     st.info("Requires ticket/CS dataset: response time, NPS, CSAT. Placeholder.")
 
-# ---------- Supply Chain ----------
+# Supply Chain
 elif section == "Supply Chain":
     st.header("Supply Chain")
     st.info("Requires supplier/delivery partner datasets. Placeholder.")
 
-# ---------- Predictive Analytics ----------
+# Predictive Analytics
 elif section == "Predictive Analytics":
     st.header("Predictive Analytics")
     st.info("Plug in forecasting / churn models here (Prophet, ARIMA, XGBoost etc.). This scaffold leaves hooks for model integration.")
 
-# ---------- Market Intelligence ----------
+# Market Intelligence
 elif section == "Market Intelligence":
     st.header("Market Intelligence")
     st.info("Requires external competitor price feeds and market datasets. Placeholder.")
 
-# ---------- Cross-sell & Upsell ----------
+# Cross-sell & Upsell
 elif section == "Cross-sell & Upsell":
     st.header("Cross-sell & Upsell")
     st.info("Compute product association rules (Apriori) or market-basket analysis on transactions. Placeholder for association mining.")
 
-# ---------- Seasonal Planning ----------
+# Seasonal Planning
 elif section == "Seasonal Planning":
     st.header("Seasonal Planning")
     st.info("Seasonal demand planning requires forecast & inventory — placeholder for calendar & resource allocation charts.")
 
-# ---------- BI Command Center ----------
+# BI Command Center
 elif section == "BI Command Center":
     st.header("BI Command Center")
     st.markdown("""
@@ -620,6 +620,6 @@ elif section == "BI Command Center":
     """)
     st.info("This is the central operations & alerting hub placeholder.")
 
-# ---------- Footer: sample data ----------
+# Footer: sample data
 with st.expander("Show sample rows (first 100)"):
     st.dataframe(df.head(100))
