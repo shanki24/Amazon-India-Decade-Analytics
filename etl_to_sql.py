@@ -24,7 +24,7 @@ def get_engine(connection_url):
 
 def run_sql_statements_from_file(conn, sql_path):
     if not Path(sql_path).exists():
-        print(f"⚠️ schema file not found at {sql_path} -- skipping schema apply.")
+        print(f"schema file not found at {sql_path} -- skipping schema apply.")
         return
     sql = open(sql_path, "r", encoding="utf8").read()
     # naive split by ';' is ok if schema.sql is well-formed
@@ -229,7 +229,7 @@ if len(cust_df):
         raise KeyError("customer_id missing from cust_df; cannot populate customers table.")
     cust_df.to_sql("customers", engine, if_exists="append", index=False, chunksize=5000)
 else:
-    print("   ⚠️ cust_df is empty (no rows to upload)")
+    print("cust_df is empty (no rows to upload)")
 
 print("Uploading transactions -> transactions table")
 # Now insert transactions (customers & products are already uploaded)
@@ -239,7 +239,7 @@ if len(transactions_df):
         transactions_df["order_date"] = pd.to_datetime(transactions_df["order_date"], errors="coerce")
     transactions_df.to_sql("transactions", engine, if_exists="append", index=False, chunksize=5000)
 else:
-    print("   ⚠️ transactions_df empty - nothing to insert")
+    print("transactions_df empty - nothing to insert")
 
 # ---------- Build and upload time_dimension from transactions date range ----------
 print("Building time_dimension from transactions.order_date ...")
@@ -258,10 +258,10 @@ if "order_date" in transactions_df.columns and transactions_df["order_date"].not
     time_df["is_weekend"] = time_df["date_id"].dt.dayofweek.isin([5,6]).astype(int)
     if len(time_df):
         time_df.to_sql("time_dimension", engine, if_exists="append", index=False, chunksize=5000)
-        print("✅ Time dimension table populated")
+        print("Time dimension table populated")
     else:
-        print("⚠️ time_df empty - skipped time_dimension upload")
+        print("time_df empty - skipped time_dimension upload")
 else:
-    print("⚠️ order_date missing or all null - skipped time_dimension creation")
+    print("order_date missing or all null - skipped time_dimension creation")
 
 print("ETL finished: products, customers, transactions, time_dimension loaded (where applicable).")
