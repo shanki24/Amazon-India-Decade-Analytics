@@ -13,7 +13,7 @@ from functools import lru_cache
 
 load_dotenv()
 
-# ----------------- Connection helpers -----------------
+# Connection helpers
 def make_engine():
     DB_USER = os.getenv('DB_USER', 'root')
     DB_PASS = quote_plus(os.getenv('DB_PASSWORD', ''))
@@ -39,7 +39,7 @@ def pick_first(columns, candidates):
             return c
     return None
 
-# ----------------- Data loader / cleaner -----------------
+# Data loader / cleaner
 @st.cache_data(ttl=300)
 def load_data(limit=1_000_000):
     engine, db_name = make_engine()
@@ -128,7 +128,7 @@ def load_data(limit=1_000_000):
 
     return df
 
-# ----------------- Utility KPI functions -----------------
+# Utility KPI functions
 def format_currency(x):
     if pd.isna(x):
         return "N/A"
@@ -139,7 +139,7 @@ def yoy_growth(series):
     s = series.sort_index()
     return s.pct_change().fillna(0)
 
-# ----------------- RFM helper -----------------
+# RFM helper
 @st.cache_data(ttl=600)
 def compute_rfm(df):
     if 'customer_id' not in df.columns or df['customer_id'].isna().all():
@@ -153,7 +153,7 @@ def compute_rfm(df):
     grouped['monetary'] = grouped['monetary'].fillna(0)
     return grouped
 
-# ----------------- Cohort helper -----------------
+# Cohort helper
 @st.cache_data(ttl=600)
 def compute_cohort_retention(df):
     if 'customer_id' not in df.columns or df['customer_id'].isna().all():
@@ -167,7 +167,7 @@ def compute_cohort_retention(df):
     retention = cohort_pivot.divide(cohort_sizes, axis=0)
     return retention
 
-# ----------------- UI layout -----------------
+# UI layout
 st.set_page_config(page_title="Amazon India — Decade Analytics", layout="wide", initial_sidebar_state="expanded")
 st.title("Amazon India — Decade Analytics")
 
@@ -224,7 +224,7 @@ if sel_year != "All":
 if sel_month != "All":
     filtered = filtered[filtered['order_month'] == int(sel_month)]
 
-# ---------- Executive Summary ----------
+# Executive Summary
 if section == "Executive Summary":
     st.header("Executive Summary")
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -275,7 +275,7 @@ if section == "Executive Summary":
     else:
         st.info("Category or amount missing: cannot display top categories by revenue.")
 
-# ---------- Real-time Monitor (basic approximation) ----------
+# Real-time Monitor
 elif section == "Real-time Monitor":
     st.header("Real-time Business Performance Monitor (approx)")
     st.info("This monitor uses most recent month available in the data as 'current month'. For true real-time, connect to streaming / events source.")
@@ -310,7 +310,7 @@ elif section == "Real-time Monitor":
         else:
             st.success("On track vs monthly revenue target.")
 
-# ---------- Strategic Overview ----------
+# Strategic Overview
 elif section == "Strategic Overview":
     st.header("Strategic Overview")
     st.markdown("Market share, geographic expansion, and high-level business health KPIs.")
@@ -332,7 +332,7 @@ elif section == "Strategic Overview":
     else:
         st.info("No customer_state column present.")
 
-# ---------- Financials ----------
+# Financials
 elif section == "Financials":
     st.header("Financial Performance")
     st.markdown("Revenue breakdowns and basic discount effectiveness analysis.")
@@ -357,7 +357,7 @@ elif section == "Financials":
     else:
         st.info("No discount_percent column to analyze discounts.")
 
-# ---------- Growth Analytics ----------
+# Growth Analytics
 elif section == "Growth Analytics":
     st.header("Growth Analytics")
     st.markdown("Customer growth, penetration, product portfolio expansion.")
@@ -368,7 +368,7 @@ elif section == "Growth Analytics":
     else:
         st.info("No customer_id column available.")
 
-# ---------- Revenue Analytics ----------
+# Revenue Analytics
 elif section == "Revenue Analytics":
     st.header("Revenue Trend Analysis")
     if 'final_amount' in df.columns:
@@ -381,7 +381,7 @@ elif section == "Revenue Analytics":
     else:
         st.info("No revenue column available.")
 
-# ---------- Category Performance ----------
+# Category Performance
 elif section == "Category Performance":
     st.header("Category Performance")
     if 'category' in df.columns:
@@ -392,7 +392,7 @@ elif section == "Category Performance":
     else:
         st.info("Category column not available.")
 
-# ---------- Geographic Revenue ----------
+# Geographic Revenue
 elif section == "Geographic Revenue":
     st.header("Geographic Revenue Analysis")
     if 'customer_state' in df.columns:
@@ -405,7 +405,7 @@ elif section == "Geographic Revenue":
     else:
         st.info("No state column present.")
 
-# ---------- Festival Analytics ----------
+# Festival Analytics
 elif section == "Festival Analytics":
     st.header("Festival / Campaign Sales")
     if 'is_festival_sale' in df.columns or 'festival_name' in df.columns:
@@ -424,7 +424,7 @@ elif section == "Festival Analytics":
     else:
         st.info("No festival columns in dataset.")
 
-# ---------- Price Optimization (simple elasticity analysis stub) ----------
+# Price Optimization (simple elasticity analysis stub)
 elif section == "Price Optimization":
     st.header("Price Optimization")
     st.markdown("Price vs orders / revenue. For elasticity compute grouped regressions or causal models.")
@@ -445,7 +445,7 @@ elif section == "Price Optimization":
     else:
         st.info("Need product_id and final_amount to run price-demand analysis.")
 
-# ---------- Customer Segmentation (RFM) ----------
+# Customer Segmentation (RFM)
 elif section == "Customer Segmentation":
     st.header("RFM Segmentation")
     rfm = compute_rfm(df)
@@ -459,7 +459,7 @@ elif section == "Customer Segmentation":
         fig = px.scatter(sample, x='frequency', y='monetary', color='recency_q', title='RFM scatter (sample)')
         st.plotly_chart(fig, use_container_width=True)
 
-# ---------- Customer Journey ----------
+# Customer Journey
 elif section == "Customer Journey":
     st.header("Customer Journey & Transitions")
     if 'customer_id' in df.columns and 'category' in df.columns:
@@ -478,7 +478,7 @@ elif section == "Customer Journey":
     else:
         st.info("Need customer_id and category to build journey transitions.")
 
-# ---------- Prime Analytics ----------
+# Prime Analytics
 elif section == "Prime Analytics":
     st.header("Prime vs Non-Prime Analysis")
     if 'is_prime_member' in df.columns and 'final_amount' in df.columns:
@@ -490,7 +490,7 @@ elif section == "Prime Analytics":
     else:
         st.info("Prime flag or final_amount missing.")
 
-# ---------- Retention & Cohorts ----------
+# Retention & Cohorts
 elif section == "Retention & Cohorts":
     st.header("Cohort Retention")
     retention = compute_cohort_retention(df)
@@ -500,7 +500,7 @@ elif section == "Retention & Cohorts":
         fig = px.imshow(retention.fillna(0).values, x=retention.columns, y=retention.index, labels=dict(x="Order month", y="Cohort month", color="Retention"), aspect="auto")
         st.plotly_chart(fig, use_container_width=True)
 
-# ---------- Demographics & Behavior ----------
+# Demographics & Behavior
 elif section == "Demographics & Behavior":
     st.header("Demographics & Behavior")
     if 'customer_age_group' in df.columns and 'final_amount' in df.columns:
@@ -511,7 +511,7 @@ elif section == "Demographics & Behavior":
     else:
         st.info("No age_group or final_amount available.")
 
-# ---------- Product Performance ----------
+# Product Performance
 elif section == "Product Performance":
     st.header("Product Performance")
     if 'product_id' in df.columns:
@@ -522,18 +522,18 @@ elif section == "Product Performance":
     else:
         st.info("No product_id column available.")
 
-# ---------- Brand Analytics ----------
+# Brand Analytics
 elif section == "Brand Analytics":
     st.header("Brand Analytics")
     # requires product join; placeholder
     st.info("Brand analysis requires brand column either in transactions or a join to products table. Add brand to transactions or join in SQL.")
 
-# ---------- Inventory Optimization ----------
+# Inventory Optimization
 elif section == "Inventory Optimization":
     st.header("Inventory Optimization")
     st.info("Inventory dashboard requires inventory feed (stock levels, reorder points). This section is a placeholder for demand forecasting and turnover metrics.")
 
-# ---------- Ratings & Reviews ----------
+# Ratings & Reviews
 elif section == "Ratings & Reviews":
     st.header("Ratings & Reviews")
     if 'rating' in df.columns:
@@ -544,12 +544,12 @@ elif section == "Ratings & Reviews":
     else:
         st.info("No rating column present in transactions. Consider table join with reviews dataset.")
 
-# ---------- New Product Launch ----------
+# New Product Launch
 elif section == "New Product Launch":
     st.header("New Product Launch Monitoring")
     st.info("Track new product revenue adoption vs baseline. Requires product launch date in products catalog and joins.")
 
-# ---------- Delivery Performance ----------
+# ---------- Delivery Performance
 elif section == "Delivery Performance":
     st.header("Delivery Performance")
     if 'delivery_days' in df.columns:
