@@ -1,13 +1,4 @@
 # scripts/data_cleaning_practice.py
-"""
-Apply the 10 Data Cleaning Practice tasks to the RAW CSV path used previously,
-and perform analogous cleaning for the products catalog.
-
-Outputs:
- - cleaned/transactions_cleaned_practice.csv
- - cleaned/products_cleaned_practice.csv
- - outputs/*.csv (samples, flags, summaries)
-"""
 import re
 from pathlib import Path
 import pandas as pd
@@ -17,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# --- Paths (user-provided) ---
+# Paths (user-provided)
 TRANSACTIONS_RAW = Path('/Users/shashankshandilya/Desktop/amazon_decade_project/data/amazon_india_complete_2015_2025.csv')
 PRODUCTS_RAW     = Path('/Users/shashankshandilya/Desktop/amazon_decade_project/data/amazon_india_products_catalog.csv')
 
@@ -26,7 +17,7 @@ OUT_CLEAN.mkdir(parents=True, exist_ok=True)
 OUT = Path('/Users/shashankshandilya/Desktop/amazon_decade_project/outputs')
 OUT.mkdir(parents=True, exist_ok=True)
 
-# --- Utilities ---
+# Utilities
 def save_df(df, name):
     p = OUT / name
     df.to_csv(p, index=False)
@@ -36,7 +27,7 @@ def try_parse_date_series(s: pd.Series) -> pd.Series:
     """Robust parsing: try common formats first, then dateutil parser fallback, return datetime64[ns] or NaT."""
     s0 = s.astype(str).fillna('').replace({'nan':''})
     out = pd.to_datetime(pd.Series([pd.NaT]*len(s0)), errors='coerce')
-    # Try common formats (fast)
+  
     formats = ['%Y-%m-%d','%d/%m/%Y','%d-%m-%y','%d-%m-%Y','%d/%m/%y','%Y/%m/%d','%d %b %Y','%d %B %Y']
     for fmt in formats:
         try:
@@ -44,7 +35,7 @@ def try_parse_date_series(s: pd.Series) -> pd.Series:
             out = out.fillna(parsed)
         except Exception:
             pass
-    # Fallback to dateutil for remaining
+    
     mask = out.isna() & (s0 != '')
     if mask.any():
         def p(x):
@@ -64,8 +55,8 @@ def parse_price_string(x):
         return np.nan
     # remove rupee sign and common tokens
     s_orig = s
-    s = re.sub(r'[₹Rs\.,]', '', s, flags=re.I)  # remove ₹, Rs, commas and dots (we'll handle decimals)
-    # handle lakh/crore etc
+    s = re.sub(r'[₹Rs\.,]', '', s, flags=re.I)  
+    
     m = re.search(r'([0-9]+(?:\.[0-9]+)?)\s*(lakh|lac|crore|cr|k|m|million|billion)', str(x), re.I)
     if m:
         num = float(m.group(1))
@@ -75,9 +66,9 @@ def parse_price_string(x):
         if unit in ('k',): return num * 1e3
         if unit in ('m','million'): return num * 1e6
         if unit in ('billion',): return num * 1e9
-    # fallback: strip non-digit except dot and minus
+    
     s2 = re.sub(r'[^0-9\.\-]', '', str(x))
-    # there may be multiple dots (e.g., thousands separators left) — keep first dot
+   
     if s2.count('.') > 1:
         parts = s2.split('.')
         s2 = parts[0] + '.' + ''.join(parts[1:])
@@ -92,27 +83,25 @@ def parse_rating_string(x):
     s = str(x).strip().lower()
     if s == '' or s in ('nan','none','n/a'):
         return np.nan
-    # x/y format
+    
     m = re.search(r'([0-9]+(\.[0-9]+)?)\s*/\s*([0-9]+(\.[0-9]+)?)', s)
     if m:
         val = float(m.group(1)); base = float(m.group(3))
         if base > 0 and base != 5:
             return float(val / base * 5.0)
         return val
-    # digits in text (e.g., '4 stars', '4.5')
+   
     m2 = re.search(r'([0-9]+(\.[0-9]+)?)', s)
     if m2:
         v = float(m2.group(1))
         if 1.0 <= v <= 5.0:
             return v
-        # if v is scaled differently (e.g., out of 10), normalize if plausible
+     
         if v <= 10:
             return min(5.0, v/2.0)
     return np.nan
 
-# -----------------------
 # TRANSACTIONS CLEANING (Q1 - Q10)
-# -----------------------
 def clean_transactions():
     if not TRANSACTIONS_RAW.exists():
         print("[TRANSACTIONS] RAW file not found:", TRANSACTIONS_RAW)
@@ -438,7 +427,6 @@ def clean_products():
 
     return p
 
-# -----------------------
 # Run both cleaners
 # -----------------------
 if __name__ == '__main__':
